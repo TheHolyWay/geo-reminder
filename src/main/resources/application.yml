@@ -1,0 +1,47 @@
+server:
+  address: 0.0.0.0
+  port: ${PORT:8080}
+spring:
+  profiles.active: ${ACTIVE_PROFILE:dev}
+  jpa:
+    hibernate:
+      ddl-auto: update
+---
+spring:
+  profiles: dev
+  h2:
+    console:
+      enabled: true
+      path: ${H2_PATH:/h2}
+  datasource:
+    url: ${DATASOURCE_URL:jdbc:h2:file:~/spring-boot-h2-db}
+    username: ${DATASOURCE_USERNAME:sa}
+    password: ${DATASOURCE_PASSWORD:}
+    driver-class-name: org.h2.Driver
+logging:
+  file: logs/georeminder_dev.log
+  level:
+    org.springframework.web: DEBUG
+    ru.javazen.telegram.bot: DEBUG
+    org.hibernate: DEBUG
+---
+spring:
+  profiles: production
+  datasource:
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+logging:
+  file: logs/georeminder_prod.log
+  level:
+    org.springframework.web: WARN
+    ru.javazen.telegram.bot: WARN
+    org.hibernate: WARN
+---
+credential:
+  telegram:
+    name: ${TELEGRAM_BOT_NAME:}
+    token: ${TELEGRAM_BOT_TOKEN:}
+  google:
+    apikey: ${GOOGLE_API_KEY:}
