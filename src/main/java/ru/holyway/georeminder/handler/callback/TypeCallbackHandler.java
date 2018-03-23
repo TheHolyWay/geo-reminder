@@ -2,6 +2,7 @@ package ru.holyway.georeminder.handler.callback;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -32,5 +33,6 @@ public class TypeCallbackHandler implements CallbackHandler {
             sender.execute(new SendMessage().setText("\uD83D\uDEE3 Укажите место").setChatId(callbackQuery.getMessage().getChatId()));
             userStateService.changeUserState(callbackQuery.getFrom().getId(), UserState.ASK_PLACE);
         }
+        sender.execute(new EditMessageReplyMarkup().setChatId(callbackQuery.getMessage().getChatId()).setMessageId(callbackQuery.getMessage().getMessageId()));
     }
 }
