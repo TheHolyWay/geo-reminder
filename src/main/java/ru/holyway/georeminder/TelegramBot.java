@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
+import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.generics.BotSession;
 import ru.holyway.georeminder.handler.MessageHandlerExecutor;
 
@@ -67,6 +69,15 @@ public class TelegramBot extends TelegramLongPollingBot {
             LOGGER.info("GeoReminder bot initialized");
         } else {
             LOGGER.error("Can't initialize GeoReminder bot. Please, provide botName and botToken!");
+        }
+
+        SendMessage message = new SendMessage()
+                .setChatId(97125098L)
+                .setText("I'm awoken!");
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            LOGGER.error("Can't send init message!", e);
         }
     }
 
