@@ -38,26 +38,28 @@ public class LocationEditMessageHandler implements EditMessageHandler {
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
         final Location location = message.getLocation();
         Set<UserTask> userTaskList = userTaskService.getUserTasks(message.getFrom().getId());
-        for (UserTask userTask : userTaskList) {
-            if (isNear(userTask.getLocation(), location)
-                    && (userTask.getNotifyTime() == null || System.currentTimeMillis() > userTask.getNotifyTime())
-                    && userTask.getChatID() != null && userTask.getChatID().equals(message.getChatId())) {
-                List<List<InlineKeyboardButton>> buttonList = new ArrayList<>();
-                List<InlineKeyboardButton> buttons = new ArrayList<>();
-                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-                InlineKeyboardButton delayButton = new InlineKeyboardButton("Delay");
-                delayButton.setText("\uD83D\uDD53 Отложить на 30 мин");
-                delayButton.setCallbackData("delay:" + userTask.getId());
-                buttons.add(delayButton);
-                InlineKeyboardButton cancelButton = new InlineKeyboardButton("Cancel");
-                cancelButton.setCallbackData("cancel:" + userTask.getId());
-                cancelButton.setText("✔ Завершить");
-                buttons.add(cancelButton);
-                buttonList.add(buttons);
-                inlineKeyboardMarkup.setKeyboard(buttonList);
-                sender.execute(new SendMessage().setText("Не забудьте " + userTask.getMessage() + " пока вы рядом")
-                        .setReplyMarkup(inlineKeyboardMarkup)
-                        .setChatId(message.getChatId()));
+        if (userTaskList != null) {
+            for (UserTask userTask : userTaskList) {
+                if (isNear(userTask.getLocation(), location)
+                        && (userTask.getNotifyTime() == null || System.currentTimeMillis() > userTask.getNotifyTime())
+                        && userTask.getChatID() != null && userTask.getChatID().equals(message.getChatId())) {
+                    List<List<InlineKeyboardButton>> buttonList = new ArrayList<>();
+                    List<InlineKeyboardButton> buttons = new ArrayList<>();
+                    InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+                    InlineKeyboardButton delayButton = new InlineKeyboardButton("Delay");
+                    delayButton.setText("\uD83D\uDD53  Отложить");
+                    delayButton.setCallbackData("delay:" + userTask.getId());
+                    buttons.add(delayButton);
+                    InlineKeyboardButton cancelButton = new InlineKeyboardButton("Cancel");
+                    cancelButton.setCallbackData("cancel:" + userTask.getId());
+                    cancelButton.setText("✔  Завершить");
+                    buttons.add(cancelButton);
+                    buttonList.add(buttons);
+                    inlineKeyboardMarkup.setKeyboard(buttonList);
+                    sender.execute(new SendMessage().setText("Не забудьте " + userTask.getMessage() + " пока вы рядом")
+                            .setReplyMarkup(inlineKeyboardMarkup)
+                            .setChatId(message.getChatId()));
+                }
             }
         }
     }
