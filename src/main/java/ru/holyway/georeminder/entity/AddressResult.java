@@ -2,28 +2,28 @@ package ru.holyway.georeminder.entity;
 
 public class AddressResult {
 
-    private String formatted_address;
+    private String formattedAddress;
 
     private Geometry geometry;
 
-    public AddressResult(String formatted_address, Geometry geometry) {
-        this.formatted_address = formatted_address;
+    public AddressResult(String formattedAddress, Geometry geometry) {
+        this.formattedAddress = formattedAddress;
         this.geometry = geometry;
     }
 
     public AddressResult() {
     }
 
-    public String getFormattedaddress() {
-        return formatted_address;
+    public String getFormattedAddress() {
+        return formattedAddress;
     }
 
     public Geometry getGeometry() {
         return geometry;
     }
 
-    public void setFormatted_address(String formatted_address) {
-        this.formatted_address = formatted_address;
+    public void setFormattedAddress(String formattedAddress) {
+        this.formattedAddress = formattedAddress;
     }
 
     public void setGeometry(Geometry geometry) {

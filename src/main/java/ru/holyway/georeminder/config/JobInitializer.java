@@ -21,17 +21,20 @@ public class JobInitializer {
 
     private final TaskScheduler scheduler;
     private final String selfUrl;
+    private final RestTemplate restTemplate;
 
-    public JobInitializer(@Value("${bot.url}") String selfUrl) {
+    public JobInitializer(@Value("${bot.url}") String selfUrl,
+                          RestTemplate restTemplate) {
         this.scheduler = new ConcurrentTaskScheduler();
         this.selfUrl = selfUrl;
+        this.restTemplate = restTemplate;
     }
 
     @PostConstruct
     private void job() {
         scheduler.scheduleWithFixedDelay(() -> {
             try {
-                new RestTemplate().getForObject(new URI(selfUrl), String.class);
+                restTemplate.getForObject(new URI(selfUrl), String.class);
             } catch (URISyntaxException e) {
                 LOGGER.error("Error during bot ping!", e);
             }

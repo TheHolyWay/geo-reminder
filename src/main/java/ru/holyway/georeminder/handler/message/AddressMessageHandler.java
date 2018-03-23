@@ -1,5 +1,7 @@
 package ru.holyway.georeminder.handler.message;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -23,11 +25,14 @@ public class AddressMessageHandler implements MessageHandler {
 
     private final UserStateService userStateService;
     private final String googleApiKey;
+    private final RestTemplate restTemplate;
 
     public AddressMessageHandler(UserStateService userStateService,
-                                 @Value("${credential.google.apikey}") final String googleApiKey) {
+                                 @Value("${credential.google.apikey}") final String googleApiKey,
+                                 RestTemplate restTemplate) {
         this.userStateService = userStateService;
         this.googleApiKey = googleApiKey;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -40,11 +45,15 @@ public class AddressMessageHandler implements MessageHandler {
 
     @Override
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
-        final String locRequest = "https://maps.googleapis.com/maps/api/geocode/json?address=" + URLEncoder.encode(message.getText()) + "&key=" + googleApiKey + "&language=ru";
-        ResponseEntity<AddressResponse> adressResponse = new RestTemplate().getForEntity(URI.create(locRequest), AddressResponse.class);
+        final String locRequest = "https://maps.googleapis.com/maps/api/geocode/json?address="
+                + URLEncoder.encode(message.getText()) + "&key=" + googleApiKey + "&language=ru";
+
+        ResponseEntity<AddressResponse> adressResponse =
+                restTemplate.getForEntity(URI.create(locRequest), AddressResponse.class);
+
         AddressResponse response = adressResponse.getBody();
         AddressResult addressResult = response.getAddressResult();
-        final String formattedAddress = addressResult.getFormattedaddress();
+        final String formattedAddress = addressResult.getFormattedAddress();
         final AddressLocation addressLocation = addressResult.getGeometry().getLocation();
 
         final UserTask userTask = new UserTask();
