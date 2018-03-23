@@ -13,11 +13,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class DefaultCallbackHandler implements CallbackHandler {
+public class CancelDelayCallbackHandler implements CallbackHandler {
 
     private final UserTaskService userTaskService;
 
-    public DefaultCallbackHandler(final UserTaskService userTaskService) {
+    public CancelDelayCallbackHandler(final UserTaskService userTaskService) {
         this.userTaskService = userTaskService;
     }
 

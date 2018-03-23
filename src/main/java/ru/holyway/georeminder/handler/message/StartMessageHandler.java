@@ -4,10 +4,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import ru.holyway.georeminder.service.UserState;
 import ru.holyway.georeminder.service.UserStateService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class StartMessageHandler implements MessageHandler {
@@ -29,7 +34,24 @@ public class StartMessageHandler implements MessageHandler {
 
     @Override
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
-        sender.execute(new SendMessage().setText("\uD83D\uDEE3 Пришлите необходимую локацию или напишите адрес").setChatId(message.getChatId()));
-        userStateService.changeUserState(message.getFrom().getId(), UserState.ASK_LOCATION);
+        List<List<InlineKeyboardButton>> buttonList = new ArrayList<>();
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton addressButton = new InlineKeyboardButton("Address");
+        addressButton.setText("Адрес");
+        addressButton.setCallbackData("address");
+        buttons.add(addressButton);
+        InlineKeyboardButton placeButton = new InlineKeyboardButton("Place");
+        placeButton.setCallbackData("place");
+        placeButton.setText("Место");
+        buttons.add(placeButton);
+        buttonList.add(buttons);
+        inlineKeyboardMarkup.setKeyboard(buttonList);
+        sender.execute(new SendMessage().setText("\uD83D\uDEE3 Выберете, как вы хотите указать локацию:\n" +
+                "Адрес - если вы хотите указать конкретный адрес\n" +
+                "Место - если хотите обозначить категорию или сеть (например Аптека или Магнит)")
+                .setReplyMarkup(inlineKeyboardMarkup)
+                .setChatId(message.getChatId()));
+        userStateService.changeUserState(message.getFrom().getId(), UserState.ASK_TYPE);
     }
 }
