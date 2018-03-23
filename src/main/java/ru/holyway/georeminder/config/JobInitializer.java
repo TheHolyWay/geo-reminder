@@ -22,7 +22,7 @@ public class JobInitializer {
     private final TaskScheduler scheduler;
     private final String selfUrl;
 
-    public JobInitializer(@Value("bot.url") String selfUrl) {
+    public JobInitializer(@Value("${bot.url}") String selfUrl) {
         this.scheduler = new ConcurrentTaskScheduler();
         this.selfUrl = selfUrl;
     }

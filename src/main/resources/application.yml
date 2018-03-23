@@ -44,4 +44,4 @@ credential:
   google:
     apikey: ${GOOGLE_API_KEY:}
 bot:
-  url: ${SELF_URL:'http://localhost:8080'}
+  url: ${SELF_URL:http://localhost:8080/}
