@@ -1,6 +1,6 @@
 server:
   address: 0.0.0.0
-  port: ${PORT:8081}
+  port: ${PORT:8080}
 spring:
   profiles.active: ${ACTIVE_PROFILE:dev}
   jpa:
@@ -39,9 +39,9 @@ logging:
 ---
 credential:
   telegram:
-    name: ${TELEGRAM_BOT_NAME:GeoRemTests_vlvl_bot}
-    token: ${TELEGRAM_BOT_TOKEN:590380547:AAHSx8z-EPmnaqI-izaUegCdqPwjMdaQEZQ}
+    name: ${TELEGRAM_BOT_NAME:}
+    token: ${TELEGRAM_BOT_TOKEN:}
   google:
-    apikey: ${GOOGLE_API_KEY:AIzaSyDFgF4GI2J9I3TCSJqK_Bcj7mMk-miMI90}
+    apikey: ${GOOGLE_API_KEY:}
 bot:
   url: ${SELF_URL:http://localhost:8080/}

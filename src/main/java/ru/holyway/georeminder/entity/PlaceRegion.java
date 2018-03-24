@@ -11,6 +11,7 @@ import utils.MathUtils;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class PlaceRegion {
@@ -111,7 +112,35 @@ public class PlaceRegion {
         ResponseEntity<AddressResponse> addressResponse =
                 restTemplate.getForEntity(URI.create(request), AddressResponse.class);
         AddressResponse response = addressResponse.getBody();
-        return response.getAddressResults();
+        List<AddressResult> result = response.getAddressResults();
+
+        result.sort((o1, o2) -> {
+            if (o1 == null) {
+                if (o2 == null) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            } else if (o2 == null) {
+                return -1;
+            }
+
+            if (o1.getRating() == null) {
+                if (o2.getRating() == null) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            } else if (o2.getRating() == null) {
+                return -1;
+            }
+
+            Double o1Rate = Double.valueOf(o1.getRating());
+            Double o2Rate = Double.valueOf(o2.getRating());
+            return o1Rate > o2Rate ? -1 : 1;
+        });
+
+        return result;
     }
 
     public AddressLocation getRegionCenterLocation() {
