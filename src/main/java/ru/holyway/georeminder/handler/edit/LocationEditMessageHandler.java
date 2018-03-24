@@ -15,7 +15,6 @@ import ru.holyway.georeminder.entity.AddressResult;
 import ru.holyway.georeminder.entity.PlaceRegion;
 import ru.holyway.georeminder.entity.UserTask;
 import ru.holyway.georeminder.service.PlaceTaskService;
-import ru.holyway.georeminder.service.PlaceTaskService;
 import ru.holyway.georeminder.service.UserTaskService;
 
 import java.util.ArrayList;
@@ -91,6 +90,7 @@ public class LocationEditMessageHandler implements EditMessageHandler {
                     final String[] regxp = addressResult.getFormattedAddress().split(",");
                     final String smallAddress = regxp[0] + regxp[1];
                     final String placeMessage = addressResult.getName() + " на " + smallAddress;
+
                     task.setTargetPlace(placeMessage);
                     executeTask(task, message, sender);
                 }
@@ -125,6 +125,8 @@ public class LocationEditMessageHandler implements EditMessageHandler {
         sender.execute(new SendMessage().setText(notifyMessage.toString())
                 .setReplyMarkup(inlineKeyboardMarkup)
                 .setChatId(message.getChatId()));
+        userTask.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
+        userTaskService.updateTask(userTask);
     }
 
     protected boolean isNear(final Location target, final Location current) {

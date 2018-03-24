@@ -35,8 +35,10 @@ public class DefaultPlaceTaskService implements PlaceTaskService {
                 if (UserTask.TaskType.PLACE == task.getTaskType()) {
                     PlaceRegion regionForTask = new PlaceRegion(task.getTargetPlace(), task.getId(),
                             this.googleApiKey, this.restTemplate);
-                    regionForTask.updatePlaceRegion(new AddressLocation(task.getLocation().getLatitude(),
-                            task.getLocation().getLongitude()));
+                    if (task.getLocation() != null) {
+                        regionForTask.updatePlaceRegion(new AddressLocation(task.getLocation().getLatitude(),
+                                task.getLocation().getLongitude()));
+                    }
                     placesCache.put(task.getId(), regionForTask);
                 }
             }

@@ -6,6 +6,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.api.methods.send.SendLocation;
+import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.Location;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.User;
@@ -61,11 +62,11 @@ public class DefaultDemoService implements DemoService {
         Location first = demoTask.getFirstLocation();
         Location second = demoTask.getSecondLocation();
 
-        Float latitudeDelta =  second.getLatitude() - first.getLatitude();
+        Float latitudeDelta = second.getLatitude() - first.getLatitude();
         Float longitudeDelta = second.getLongitude() - first.getLongitude();
 
-        final Float latitudeStep = latitudeDelta/3;
-        final Float longitudeStep = longitudeDelta/3;
+        final Float latitudeStep = latitudeDelta / 3;
+        final Float longitudeStep = longitudeDelta / 3;
 
         long delay = TimeUnit.SECONDS.toMillis(5);
 
@@ -84,6 +85,10 @@ public class DefaultDemoService implements DemoService {
             PowerMockito.when(message.getFrom()).thenReturn(user);
             PowerMockito.when(message.getChatId()).thenReturn(demoTask.getChatId());
             PowerMockito.when(message.getLocation()).thenReturn(currentLocation);
+
+            Chat chat = PowerMockito.mock(Chat.class);
+            PowerMockito.when(message.getChat()).thenReturn(chat);
+            PowerMockito.when(chat.isUserChat()).thenReturn(true);
 
             SendLocation sendLocation = new SendLocation().setChatId(demoTask.getChatId())
                     .setLatitude(currentLocation.getLatitude())
