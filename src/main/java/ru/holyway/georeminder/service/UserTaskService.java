@@ -22,9 +22,9 @@ public interface UserTaskService {
      * @param userID
      * @return
      */
-    Set<UserTask> getUserTasks(final Integer userID);
+    Set<UserTask> getUserTasks(final Number userID);
 
-    Set<UserTask> getSimpleUserTasks(final Integer userID);
+    Set<UserTask> getSimpleUserTasks(final Number userID);
 
-    Set<UserTask> getPlaceUserTasks(final Integer userID);
+    Set<UserTask> getPlaceUserTasks(final Number userID);
 }

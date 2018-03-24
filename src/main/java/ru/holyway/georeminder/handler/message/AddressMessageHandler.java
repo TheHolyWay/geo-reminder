@@ -58,7 +58,11 @@ public class AddressMessageHandler implements MessageHandler {
         final UserTask userTask = new UserTask();
         userTask.setTaskType(UserTask.TaskType.SIMPLE);
         userTask.setLocation(addressLocation);
-        userTask.setUserID(message.getFrom().getId());
+        if (message.getChat().isUserChat()) {
+            userTask.setUserID(message.getFrom().getId());
+        } else {
+            userTask.setUserID(message.getChat().getId());
+        }
         userTask.setChatID(message.getChatId());
         userTask.setTargetPlace(smallAddress);
         userStateService.changeDraftTask(message.getFrom().getId(), userTask);

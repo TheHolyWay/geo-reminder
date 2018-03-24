@@ -11,14 +11,17 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboar
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import ru.holyway.georeminder.entity.AddressLocation;
+import ru.holyway.georeminder.entity.AddressResult;
 import ru.holyway.georeminder.entity.PlaceRegion;
 import ru.holyway.georeminder.entity.UserTask;
+import ru.holyway.georeminder.service.PlaceTaskService;
 import ru.holyway.georeminder.service.PlaceTaskService;
 import ru.holyway.georeminder.service.UserTaskService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class LocationEditMessageHandler implements EditMessageHandler {
@@ -43,8 +46,16 @@ public class LocationEditMessageHandler implements EditMessageHandler {
     @Override
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
         final Location location = message.getLocation();
-        handleSimpleTasks(userTaskService.getSimpleUserTasks(message.getFrom().getId()), message, location, sender);
-        handlePlaceTasks(userTaskService.getPlaceUserTasks(message.getFrom().getId()), message, location, sender);
+        if (message.getChat().isUserChat()) {
+            final Integer userID = message.getFrom().getId();
+            handleSimpleTasks(userTaskService.getSimpleUserTasks(userID), message, location, sender);
+            handlePlaceTasks(userTaskService.getPlaceUserTasks(userID), message, location, sender);
+        } else {
+            final Long userID = message.getChatId();
+            handleSimpleTasks(userTaskService.getSimpleUserTasks(userID), message, location, sender);
+            handlePlaceTasks(userTaskService.getPlaceUserTasks(userID), message, location, sender);
+        }
+
     }
 
     private void handleSimpleTasks(Set<UserTask> tasks, Message message, Location location,
@@ -72,8 +83,18 @@ public class LocationEditMessageHandler implements EditMessageHandler {
             } else {
                 regionForTask.updatePlaceRegion(new AddressLocation(location.getLatitude(), location.getLongitude()));
             }
-
-            String str = "asd";
+            for (AddressResult addressResult : regionForTask.getPlacesInRegion()) {
+                final Location targetLocation = addressResult.getGeometry().getLocation();
+                if (isNear(targetLocation, location)
+                        && (task.getNotifyTime() == null || System.currentTimeMillis() > task.getNotifyTime())
+                        && task.getChatID() != null && task.getChatID().equals(message.getChatId())) {
+                    final String[] regxp = addressResult.getFormattedAddress().split(",");
+                    final String smallAddress = regxp[0] + regxp[1];
+                    final String placeMessage = addressResult.getName() + " на " + smallAddress;
+                    task.setTargetPlace(placeMessage);
+                    executeTask(task, message, sender);
+                }
+            }
         }
     }
 
@@ -90,8 +111,18 @@ public class LocationEditMessageHandler implements EditMessageHandler {
         cancelButton.setText("✔  Завершить");
         buttons.add(cancelButton);
         buttonList.add(buttons);
+        final StringBuilder notifyMessage = new StringBuilder();
+        notifyMessage.append("\uD83C\uDFC1 ");
+        if (!message.getChat().isUserChat()) {
+            final String userName = message.getFrom().getUserName() != null ? message.getFrom().getUserName() : message.getFrom().getFirstName();
+            notifyMessage.append('@').append(userName).append(", ");
+        }
+        notifyMessage.append("Не забудьте ")
+                .append(userTask.getMessage())
+                .append(" пока вы рядом c ")
+                .append(userTask.getTargetPlace());
         inlineKeyboardMarkup.setKeyboard(buttonList);
-        sender.execute(new SendMessage().setText("Не забудьте " + userTask.getMessage() + " пока вы рядом")
+        sender.execute(new SendMessage().setText(notifyMessage.toString())
                 .setReplyMarkup(inlineKeyboardMarkup)
                 .setChatId(message.getChatId()));
     }

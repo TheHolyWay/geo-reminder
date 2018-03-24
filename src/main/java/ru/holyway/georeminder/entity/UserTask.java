@@ -15,7 +15,7 @@ public class UserTask {
     @Id
     private String id;
 
-    private Integer userID;
+    private Number userID;
 
     private String message;
 
@@ -47,7 +47,7 @@ public class UserTask {
         PLACE
     }
 
-    public UserTask(String id, Integer userID, String message, Location location, Long chatID) {
+    public UserTask(String id, Number userID, String message, Location location, Long chatID) {
         this.id = id;
         this.userID = userID;
         this.message = message;
@@ -55,7 +55,7 @@ public class UserTask {
         this.chatID = chatID;
     }
 
-    public UserTask(Integer userID, String message, Location location, Long chatID) {
+    public UserTask(Number userID, String message, Location location, Long chatID) {
         this.userID = userID;
         this.message = message;
         this.location = location;
@@ -76,11 +76,11 @@ public class UserTask {
         return location;
     }
 
-    public Integer getUserID() {
+    public Number getUserID() {
         return userID;
     }
 
-    public void setUserID(Integer userID) {
+    public void setUserID(Number userID) {
         this.userID = userID;
     }
 

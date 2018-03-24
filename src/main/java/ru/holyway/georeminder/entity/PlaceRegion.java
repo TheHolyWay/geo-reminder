@@ -65,4 +65,12 @@ public class PlaceRegion {
         AddressResponse response = addressResponse.getBody();
         return response.getAddressResults();
     }
+
+    public AddressLocation getRegionCenterLocation() {
+        return regionCenterLocation;
+    }
+
+    public List<AddressResult> getPlacesInRegion() {
+        return placesInRegion;
+    }
 }
