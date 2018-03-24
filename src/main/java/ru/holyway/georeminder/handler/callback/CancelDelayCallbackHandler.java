@@ -32,7 +32,8 @@ public class CancelDelayCallbackHandler implements CallbackHandler {
         final String callbackData = callbackQuery.getData();
         if (callbackData.startsWith("delay:")) {
             final String id = callbackData.replace("delay:", "");
-            Set<UserTask> userTaskList = userTaskService.getUserTasks(callbackQuery.getFrom().getId());
+            final Number userID = callbackQuery.getMessage().getChat().isUserChat() ? callbackQuery.getMessage().getFrom().getId() : callbackQuery.getMessage().getChatId();
+            Set<UserTask> userTaskList = userTaskService.getUserTasks(userID);
             for (UserTask userTask : userTaskList) {
                 if (userTask.getId().equals(id)) {
                     userTask.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30));
@@ -45,7 +46,8 @@ public class CancelDelayCallbackHandler implements CallbackHandler {
         }
         if (callbackData.startsWith("cancel:")) {
             final String id = callbackData.replace("cancel:", "");
-            Set<UserTask> userTaskList = userTaskService.getUserTasks(callbackQuery.getFrom().getId());
+            final Number userID = callbackQuery.getMessage().getChat().isUserChat() ? callbackQuery.getMessage().getFrom().getId() : callbackQuery.getMessage().getChatId();
+            Set<UserTask> userTaskList = userTaskService.getUserTasks(userID);
             for (UserTask userTask : userTaskList) {
                 if (userTask.getId().equals(id)) {
                     userTask.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30));

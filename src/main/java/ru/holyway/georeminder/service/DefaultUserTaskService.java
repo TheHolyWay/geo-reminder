@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class DefaultUserTaskService implements UserTaskService {
 
-    private final Map<Integer, Set<UserTask>> userTasks = new ConcurrentHashMap<>();
+    private final Map<Number, Set<UserTask>> userTasks = new ConcurrentHashMap<>();
 
     private final UserTaskRepository userTaskRepository;
 
@@ -61,29 +61,29 @@ public class DefaultUserTaskService implements UserTaskService {
     }
 
     @Override
-    public Set<UserTask> getUserTasks(Integer userID) {
+    public Set<UserTask> getUserTasks(Number userID) {
         return userTasks.get(userID);
     }
 
     @Override
-    public Set<UserTask> getSimpleUserTasks(Integer userID) {
+    public Set<UserTask> getSimpleUserTasks(Number userID) {
         return getUserTasksByType(userID, UserTask.TaskType.SIMPLE);
     }
 
     @Override
-    public Set<UserTask> getPlaceUserTasks(Integer userID) {
+    public Set<UserTask> getPlaceUserTasks(Number userID) {
         return getUserTasksByType(userID, UserTask.TaskType.PLACE);
     }
 
-    private Set<UserTask> getUserTasksByType(Integer userID, UserTask.TaskType type) {
+    private Set<UserTask> getUserTasksByType(Number userID, UserTask.TaskType type) {
         Set<UserTask> result = new HashSet<>();
-
-        for (UserTask task : userTasks.get(userID)) {
-            if (type == task.getTaskType()) {
-                result.add(task);
+        if ( userTasks.get(userID) != null) {
+            for (UserTask task : userTasks.get(userID)) {
+                if (type == task.getTaskType()) {
+                    result.add(task);
+                }
             }
         }
-
         return result;
     }
 }
