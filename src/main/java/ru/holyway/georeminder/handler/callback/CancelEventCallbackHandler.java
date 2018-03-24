@@ -13,18 +13,18 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class CancelDelayCallbackHandler implements CallbackHandler {
+public class CancelEventCallbackHandler implements CallbackHandler {
 
     private final UserTaskService userTaskService;
 
-    public CancelDelayCallbackHandler(final UserTaskService userTaskService) {
+    public CancelEventCallbackHandler(final UserTaskService userTaskService) {
         this.userTaskService = userTaskService;
     }
 
     @Override
     public boolean isNeedToHandle(CallbackQuery callbackQuery) {
         final String callbackData = callbackQuery.getData();
-        return callbackData.startsWith("delay:") || callbackData.startsWith("cancel:");
+        return callbackData.startsWith("event_cancel:");
     }
 
     @Override

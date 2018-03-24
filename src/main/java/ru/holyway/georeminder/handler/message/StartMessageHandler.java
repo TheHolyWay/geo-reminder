@@ -8,6 +8,7 @@ import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+import ru.holyway.georeminder.entity.UserTask;
 import ru.holyway.georeminder.service.UserState;
 import ru.holyway.georeminder.service.UserStateService;
 
@@ -27,7 +28,7 @@ public class StartMessageHandler implements MessageHandler {
     public boolean isNeedToHandle(Message message) {
         if (UserState.NO_STATE.equals(userStateService.getCurrentUserState(message.getFrom().getId()))) {
             final String mes = message.getText();
-            return StringUtils.isNotEmpty(mes) && "/new".equalsIgnoreCase(mes);
+            return StringUtils.isNotEmpty(mes) && ("/new".equalsIgnoreCase(mes) || StringUtils.containsIgnoreCase(mes, "нов"));
         }
         return false;
     }
@@ -48,10 +49,13 @@ public class StartMessageHandler implements MessageHandler {
         buttonList.add(buttons);
         inlineKeyboardMarkup.setKeyboard(buttonList);
         sender.execute(new SendMessage().setText("\uD83D\uDEE3 Выберете, как вы хотите указать локацию:\n" +
-                "Адрес - если вы хотите указать конкретный адрес\n" +
-                "Место - если хотите обозначить категорию или сеть (например Аптека или Магнит)")
+                "  Адрес - если вы хотите указать конкретный адрес\n" +
+                "  Место - если хотите обозначить категорию или сеть (например 'Аптека' или 'Магнит')")
                 .setReplyMarkup(inlineKeyboardMarkup)
                 .setChatId(message.getChatId()));
         userStateService.changeUserState(message.getFrom().getId(), UserState.ASK_TYPE);
+        final UserTask userTask = new UserTask();
+        userTask.setEventType(UserTask.EventType.SINGLE);
+        userStateService.changeDraftTask(message.getFrom().getId(), userTask);
     }
 }

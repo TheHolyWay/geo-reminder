@@ -75,11 +75,24 @@ public class DefaultUserTaskService implements UserTaskService {
         return getUserTasksByType(userID, UserTask.TaskType.PLACE);
     }
 
+    @Override
+    public Set<UserTask> getEventUserTasks(Number userID) {
+        Set<UserTask> result = new HashSet<>();
+        if (userTasks.get(userID) != null) {
+            for (UserTask task : userTasks.get(userID)) {
+                if (UserTask.EventType.EVENT == task.getEventType()) {
+                    result.add(task);
+                }
+            }
+        }
+        return result;
+    }
+
     private Set<UserTask> getUserTasksByType(Number userID, UserTask.TaskType type) {
         Set<UserTask> result = new HashSet<>();
-        if ( userTasks.get(userID) != null) {
+        if (userTasks.get(userID) != null) {
             for (UserTask task : userTasks.get(userID)) {
-                if (type == task.getTaskType()) {
+                if (type == task.getTaskType() && !UserTask.EventType.EVENT.equals(task.getEventType())) {
                     result.add(task);
                 }
             }
