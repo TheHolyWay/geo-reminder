@@ -28,7 +28,7 @@ public class StartMessageHandler implements MessageHandler {
     public boolean isNeedToHandle(Message message) {
         if (UserState.NO_STATE.equals(userStateService.getCurrentUserState(message.getFrom().getId()))) {
             final String mes = message.getText();
-            return StringUtils.isNotEmpty(mes) && ("/new".equalsIgnoreCase(mes) || StringUtils.containsIgnoreCase(mes, "нов"));
+            return StringUtils.isNotEmpty(mes) && (mes.contains("/new") || StringUtils.containsIgnoreCase(mes, "нов"));
         }
         return false;
     }
@@ -39,18 +39,18 @@ public class StartMessageHandler implements MessageHandler {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton addressButton = new InlineKeyboardButton("Address");
-        addressButton.setText("Адрес");
+        addressButton.setText("\uD83D\uDC41\u200D\uD83D\uDDE8  Адрес");
         addressButton.setCallbackData("address");
         buttons.add(addressButton);
         InlineKeyboardButton placeButton = new InlineKeyboardButton("Place");
         placeButton.setCallbackData("place");
-        placeButton.setText("Место");
+        placeButton.setText("\uD83D\uDD0E  Поиск места");
         buttons.add(placeButton);
         buttonList.add(buttons);
         inlineKeyboardMarkup.setKeyboard(buttonList);
-        sender.execute(new SendMessage().setText("\uD83D\uDEE3 Выберете, как вы хотите указать локацию:\n" +
-                "  Адрес - если вы хотите указать конкретный адрес\n" +
-                "  Место - если хотите обозначить категорию или сеть (например 'Аптека' или 'Магнит')")
+        sender.execute(new SendMessage().setText("\uD83D\uDEE3  Выберете, пожалуйста, как Вы хотите указать локацию:\n\n" +
+                "\uD83D\uDC41\u200D\uD83D\uDDE8  Адрес - можно указать конкретный адрес или точку на карте\n" +
+                "\uD83D\uDD0E  Поиск места - можно указать название места или поисковое слово (например 'Аптека' или 'Магнит')")
                 .setReplyMarkup(inlineKeyboardMarkup)
                 .setChatId(message.getChatId()));
         userStateService.changeUserState(message.getFrom().getId(), UserState.ASK_TYPE);

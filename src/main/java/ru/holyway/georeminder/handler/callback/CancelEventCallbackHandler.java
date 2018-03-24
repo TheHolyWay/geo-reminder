@@ -10,7 +10,6 @@ import ru.holyway.georeminder.entity.UserTask;
 import ru.holyway.georeminder.service.UserTaskService;
 
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class CancelEventCallbackHandler implements CallbackHandler {
@@ -30,40 +29,23 @@ public class CancelEventCallbackHandler implements CallbackHandler {
     @Override
     public void execute(CallbackQuery callbackQuery, AbsSender sender) throws TelegramApiException {
         final String callbackData = callbackQuery.getData();
-        if (callbackQuery.getMessage().getChat().isUserChat()) {
-            final Integer userID = callbackQuery.getFrom().getId();
-            executeCancelDelay(callbackQuery, sender, callbackData, userID);
-        } else {
+        if (!callbackQuery.getMessage().getChat().isUserChat()) {
             final Long userID = callbackQuery.getMessage().getChatId();
             executeCancelDelay(callbackQuery, sender, callbackData, userID);
         }
     }
 
     private void executeCancelDelay(CallbackQuery callbackQuery, AbsSender sender, String callbackData, Number userID) throws TelegramApiException {
-        if (callbackData.startsWith("delay:")) {
-            final String id = callbackData.replace("delay:", "");
-            Set<UserTask> userTaskList = userTaskService.getUserTasks(userID);
-            for (UserTask userTask : userTaskList) {
-                if (userTask.getId().equals(id)) {
-                    userTask.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30));
-                    userTaskService.updateTask(userTask);
-                    sender.execute(new SendMessage().setText("\uD83D\uDD53 Ок, помолчу про неё пол часа").setChatId(callbackQuery.getMessage().getChatId()));
-                    sender.execute(new EditMessageReplyMarkup().setChatId(callbackQuery.getMessage().getChatId()).setMessageId(callbackQuery.getMessage().getMessageId()));
-                    return;
-                }
-            }
-        }
-        if (callbackData.startsWith("cancel:")) {
-            final String id = callbackData.replace("cancel:", "");
-            Set<UserTask> userTaskList = userTaskService.getUserTasks(userID);
-            for (UserTask userTask : userTaskList) {
-                if (userTask.getId().equals(id)) {
-                    userTask.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30));
-                    userTaskService.removeUserTask(id);
-                    sender.execute(new SendMessage().setText("✔ Задача завершена ").setChatId(callbackQuery.getMessage().getChatId()));
-                    sender.execute(new EditMessageReplyMarkup().setChatId(callbackQuery.getMessage().getChatId()).setMessageId(callbackQuery.getMessage().getMessageId()));
-                    return;
-                }
+        final String id = callbackData.replace("event_cancel:", "");
+        Set<UserTask> userTaskList = userTaskService.getUserTasks(userID);
+        for (UserTask userTask : userTaskList) {
+            if (userTask.getId().equals(id)) {
+                userTaskService.removeUserTask(id);
+                sender.execute(new SendMessage().setText("✔ Эвент завершен")
+                        .setReplyToMessageId(callbackQuery.getMessage().getMessageId())
+                        .setChatId(callbackQuery.getMessage().getChatId()));
+                sender.execute(new EditMessageReplyMarkup().setChatId(callbackQuery.getMessage().getChatId()).setMessageId(callbackQuery.getMessage().getMessageId()));
+                return;
             }
         }
     }

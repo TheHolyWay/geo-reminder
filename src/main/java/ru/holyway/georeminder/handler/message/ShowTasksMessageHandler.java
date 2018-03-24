@@ -1,6 +1,5 @@
 package ru.holyway.georeminder.handler.message;
 
-import opennlp.tools.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -35,7 +34,7 @@ public class ShowTasksMessageHandler implements MessageHandler {
         if (UserState.NO_STATE.equals(userStateService.getCurrentUserState(message.getFrom().getId()))) {
             final String mes = message.getText();
 
-            return StringUtils.isNotEmpty(mes) &&("/list".equalsIgnoreCase(mes)
+            return StringUtils.isNotEmpty(mes) && (mes.contains("/list")
                     || StringUtils.containsIgnoreCase(mes, "список")
                     || StringUtils.containsIgnoreCase(mes, "мои")
                     || StringUtils.containsIgnoreCase(mes, "таски"));
@@ -46,17 +45,25 @@ public class ShowTasksMessageHandler implements MessageHandler {
 
     @Override
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
-        Set<UserTask> userTasks = userTaskService.getUserTasks(message.getFrom().getId());
 
-        sender.execute(new SendMessage().setText(message.getFrom().getFirstName() + ", твои активные таски:")
-                .setChatId(message.getChatId()));
-
+        Set<UserTask> userTasks;
+        if (message.getChat().isUserChat()) {
+            userTasks = userTaskService.getUserTasks(message.getFrom().getId());
+            sender.execute(new SendMessage().setText(message.getFrom().getFirstName() + ", твои активные таски:")
+                    .setChatId(message.getChatId()));
+        } else {
+            userTasks = userTaskService.getUserTasks(message.getChatId());
+            sender.execute(new SendMessage().setText("Активные таски чата:")
+                    .setChatId(message.getChatId()));
+        }
         if (userTasks != null) {
             for (UserTask task : userTasks) {
                 InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
                 List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
                 List<InlineKeyboardButton> rowInline = new ArrayList<>();
-                rowInline.add(new InlineKeyboardButton().setText("Удалить таску").setCallbackData("delete_task:" + task.getId()));
+                rowInline.add(new InlineKeyboardButton()
+                        .setText("Удалить таску")
+                        .setCallbackData("delete_task:" + task.getId()));
                 rowsInline.add(rowInline);
                 markupInline.setKeyboard(rowsInline);
 
@@ -72,6 +79,9 @@ public class ShowTasksMessageHandler implements MessageHandler {
                         + task.getMessage() + "\n" + "\uD83D\uDEE3 Место: " + taskPlace + "\u200C")
                         .setChatId(message.getChatId()).setReplyMarkup(markupInline));
             }
+        } else {
+            sender.execute(new SendMessage().setText("Нет активных тасок:")
+                    .setChatId(message.getChatId()));
         }
     }
 }

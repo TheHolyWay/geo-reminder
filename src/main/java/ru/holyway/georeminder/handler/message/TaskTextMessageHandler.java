@@ -85,6 +85,11 @@ public class TaskTextMessageHandler implements MessageHandler {
         Message newMessage = sender.execute(new SendMessage().setText(taskTextMessage.toString())
                 .setReplyMarkup(inlineKeyboardMarkup)
                 .setChatId(message.getChatId()));
-        sender.execute(new PinChatMessage().setChatId(message.getChatId()).setMessageId(newMessage.getMessageId()));
+        try {
+            sender.execute(new PinChatMessage().setChatId(message.getChatId()).setMessageId(newMessage.getMessageId()));
+        } catch (Exception e) {
+
+        }
+
     }
 }

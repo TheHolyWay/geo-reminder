@@ -45,9 +45,9 @@ public class CancelDelayCallbackHandler implements CallbackHandler {
             Set<UserTask> userTaskList = userTaskService.getUserTasks(userID);
             for (UserTask userTask : userTaskList) {
                 if (userTask.getId().equals(id)) {
-                    userTask.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30));
+                    userTask.setNotifyTime(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(12));
                     userTaskService.updateTask(userTask);
-                    sender.execute(new SendMessage().setText("\uD83D\uDD53 Ок, помолчу про неё пол часа").setChatId(callbackQuery.getMessage().getChatId()));
+                    sender.execute(new SendMessage().setText("\uD83D\uDD53 Хорошо, напомню завтра").setChatId(callbackQuery.getMessage().getChatId()));
                     sender.execute(new EditMessageReplyMarkup().setChatId(callbackQuery.getMessage().getChatId()).setMessageId(callbackQuery.getMessage().getMessageId()));
                     return;
                 }
@@ -60,7 +60,7 @@ public class CancelDelayCallbackHandler implements CallbackHandler {
                 if (userTask.getId().equals(id)) {
                     userTask.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30));
                     userTaskService.removeUserTask(id);
-                    sender.execute(new SendMessage().setText("✔ Задача завершена ").setChatId(callbackQuery.getMessage().getChatId()));
+                    sender.execute(new SendMessage().setText("✔ Задача завершена").setChatId(callbackQuery.getMessage().getChatId()));
                     sender.execute(new EditMessageReplyMarkup().setChatId(callbackQuery.getMessage().getChatId()).setMessageId(callbackQuery.getMessage().getMessageId()));
                     return;
                 }

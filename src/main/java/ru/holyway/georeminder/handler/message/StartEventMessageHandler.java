@@ -23,14 +23,14 @@ public class StartEventMessageHandler implements MessageHandler {
     public boolean isNeedToHandle(Message message) {
         if (UserState.NO_STATE.equals(userStateService.getCurrentUserState(message.getFrom().getId())) && !message.getChat().isUserChat()) {
             final String mes = message.getText();
-            return StringUtils.isNotEmpty(mes) && ("/event".equalsIgnoreCase(mes) || StringUtils.containsIgnoreCase(mes, "эвент"));
+            return StringUtils.isNotEmpty(mes) && (mes.contains("/event") || StringUtils.containsIgnoreCase(mes, "эвент"));
         }
         return false;
     }
 
     @Override
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
-        sender.execute(new SendMessage().setText("\uD83D\uDEE3 Пришлите локацию эвента или напишите адрес").setChatId(message.getChatId()));
+        sender.execute(new SendMessage().setText("\uD83D\uDEE3 Пришлите локацию эвента или напишите адрес:").setChatId(message.getChatId()));
         userStateService.changeUserState(message.getFrom().getId(), UserState.ASK_LOCATION);
         final UserTask userTask = new UserTask();
         userTask.setEventType(UserTask.EventType.EVENT);
