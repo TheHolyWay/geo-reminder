@@ -37,9 +37,14 @@ public class LocationEditMessageHandler implements EditMessageHandler {
     @Override
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
         final Location location = message.getLocation();
-        Set<UserTask> userTaskList = userTaskService.getUserTasks(message.getFrom().getId());
-        if (userTaskList != null) {
-            for (UserTask userTask : userTaskList) {
+        handleSimpleTasks(userTaskService.getSimpleUserTasks(message.getFrom().getId()), message, location, sender);
+        handlePlaceTasks(userTaskService.getPlaceUserTasks(message.getFrom().getId()));
+    }
+
+    private void handleSimpleTasks(Set<UserTask> tasks, Message message, Location location,
+                                   AbsSender sender) throws TelegramApiException {
+        if (tasks != null) {
+            for (UserTask userTask : tasks) {
                 if (isNear(userTask.getLocation(), location)
                         && (userTask.getNotifyTime() == null || System.currentTimeMillis() > userTask.getNotifyTime())
                         && userTask.getChatID() != null && userTask.getChatID().equals(message.getChatId())) {
@@ -62,6 +67,10 @@ public class LocationEditMessageHandler implements EditMessageHandler {
                 }
             }
         }
+    }
+
+    private void handlePlaceTasks(Set<UserTask> tasks) {
+        String tString = "123";
     }
 
     protected boolean isNear(final Location target, final Location current) {

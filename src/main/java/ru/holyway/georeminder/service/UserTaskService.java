@@ -14,7 +14,8 @@ public interface UserTaskService {
      * @param targetLocation
      * @param text
      */
-    void addTask(final Integer userID, final Long chatID, final Location targetLocation, final String text);
+    void addTask(final Integer userID, final Long chatID, final Location targetLocation, final String text,
+                 UserTask.TaskType type);
 
     void updateTask(UserTask userTask);
 
@@ -25,4 +26,8 @@ public interface UserTaskService {
      * @return
      */
     Set<UserTask> getUserTasks(final Integer userID);
+
+    Set<UserTask> getSimpleUserTasks(final Integer userID);
+
+    Set<UserTask> getPlaceUserTasks(final Integer userID);
 }

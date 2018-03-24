@@ -3,6 +3,8 @@ package ru.holyway.georeminder.entity;
 import org.telegram.telegrambots.api.objects.Location;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import java.util.Objects;
 import java.util.UUID;
@@ -23,6 +25,14 @@ public class UserTask {
 
     private Long chatID;
 
+    @Enumerated(EnumType.STRING)
+    private TaskType taskType;
+
+    public enum TaskType {
+        SIMPLE,
+        PLACE
+    }
+
     public UserTask(String id, Integer userID, String message, Location location, Long chatID) {
         this.id = id;
         this.userID = userID;
@@ -41,6 +51,7 @@ public class UserTask {
 
     public UserTask() {
         this.id = UUID.randomUUID().toString();
+        this.taskType = TaskType.SIMPLE;
     }
 
     public String getMessage() {
@@ -85,6 +96,14 @@ public class UserTask {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(TaskType taskType) {
+        this.taskType = taskType;
     }
 
     @Override

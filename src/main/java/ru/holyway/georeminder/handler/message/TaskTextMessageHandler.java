@@ -38,7 +38,8 @@ public class TaskTextMessageHandler implements MessageHandler {
         final String mes = message.getText();
         UserTask userTask = userStateService.getDraftUserTask(message.getFrom().getId());
         userTask.setMessage(mes);
-        userTaskService.addTask(message.getFrom().getId(), message.getChatId(), userTask.getLocation(), userTask.getMessage());
+        userTaskService.addTask(message.getFrom().getId(), message.getChatId(), userTask.getLocation(),
+                userTask.getMessage(), userTask.getTaskType());
         userStateService.changeUserState(message.getFrom().getId(), UserState.NO_STATE);
     }
 }

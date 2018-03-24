@@ -1,7 +1,5 @@
 package ru.holyway.georeminder.handler.message;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -57,6 +55,7 @@ public class AddressMessageHandler implements MessageHandler {
         final AddressLocation addressLocation = addressResult.getGeometry().getLocation();
 
         final UserTask userTask = new UserTask();
+        userTask.setTaskType(UserTask.TaskType.SIMPLE);
         userTask.setLocation(addressLocation);
         userTask.setUserID(message.getFrom().getId());
         userStateService.changeDraftTask(message.getFrom().getId(), userTask);
