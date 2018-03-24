@@ -4,6 +4,8 @@ import org.languagetool.AnalyzedSentence;
 import org.languagetool.JLanguageTool;
 import org.languagetool.Language;
 import org.languagetool.language.Russian;
+import org.languagetool.tokenizers.Tokenizer;
+import org.languagetool.tokenizers.WordTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.holyway.georeminder.nlp.morphology.MorphologyAnalyzer;
@@ -17,6 +19,8 @@ import java.util.Set;
 public class JLanguageToolMorphologyAnalyzer implements MorphologyAnalyzer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JLanguageToolMorphologyAnalyzer.class);
+
+    private Tokenizer tokenizer = new WordTokenizer();
 
     private JLanguageTool langTool;
 

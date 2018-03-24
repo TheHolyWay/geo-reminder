@@ -2,7 +2,8 @@ package ru.holyway.georeminder.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.holyway.georeminder.nlp.grapheme.impl.OpenNlpGraphemeAnalyzer;
+import ru.holyway.georeminder.nlp.grapheme.GraphemeAnalyzer;
+import ru.holyway.georeminder.nlp.grapheme.impl.JLanguageToolGraphemeAnalyzer;
 import ru.holyway.georeminder.nlp.morphology.impl.JLanguageToolMorphologyAnalyzer;
 import ru.holyway.georeminder.nlp.morphology.impl.OpenNlpMorphologyAnalyzer;
 import ru.holyway.georeminder.nlp.spelling.SpellingAnalyzer;
@@ -25,8 +26,8 @@ public class NlpConfiguration {
     }
 
     @Bean
-    public OpenNlpGraphemeAnalyzer openNlpGraphemeAnalyzer() throws IOException {
-        return new OpenNlpGraphemeAnalyzer(OpenNlpGraphemeAnalyzer.getDefaultModelRu());
+    public GraphemeAnalyzer graphemeAnalyzer() throws IOException {
+        return new JLanguageToolGraphemeAnalyzer();
     }
 
     @Bean
