@@ -3,6 +3,8 @@ package ru.holyway.georeminder.entity;
 import org.telegram.telegrambots.api.objects.Location;
 
 public class AddressLocation extends Location {
+    private static final long serialVersionUID = 4623388350544739915L;
+
     private float lat;
 
     private float lng;
@@ -31,5 +33,12 @@ public class AddressLocation extends Location {
 
     public void setLng(float lng) {
         this.lng = lng;
+    }
+
+    /**
+     * Returns lat + , + lng
+     */
+    public String getLocationAsString() {
+        return getLatitude().toString() + "," + getLongitude().toString();
     }
 }

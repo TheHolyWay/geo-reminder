@@ -2,7 +2,9 @@ package ru.holyway.georeminder.handler.edit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Location;
 import org.telegram.telegrambots.api.objects.Message;
@@ -10,6 +12,8 @@ import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+import ru.holyway.georeminder.entity.AddressLocation;
+import ru.holyway.georeminder.entity.PlaceRegion;
 import ru.holyway.georeminder.entity.UserTask;
 import ru.holyway.georeminder.service.UserTaskService;
 
@@ -24,8 +28,15 @@ public class LocationEditMessageHandler implements EditMessageHandler {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(LocationEditMessageHandler.class);
 
-    public LocationEditMessageHandler(UserTaskService userTaskService) {
+    private final RestTemplate restTemplate;
+    private final String googleApiKey;
+
+    public LocationEditMessageHandler(UserTaskService userTaskService,
+                                      @Value("${credential.google.apikey}") final String googleApiKey,
+                                      RestTemplate restTemplate) {
         this.userTaskService = userTaskService;
+        this.googleApiKey = googleApiKey;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -38,7 +49,7 @@ public class LocationEditMessageHandler implements EditMessageHandler {
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
         final Location location = message.getLocation();
         handleSimpleTasks(userTaskService.getSimpleUserTasks(message.getFrom().getId()), message, location, sender);
-        handlePlaceTasks(userTaskService.getPlaceUserTasks(message.getFrom().getId()));
+        handlePlaceTasks(userTaskService.getPlaceUserTasks(message.getFrom().getId()), location);
     }
 
     private void handleSimpleTasks(Set<UserTask> tasks, Message message, Location location,
@@ -69,7 +80,14 @@ public class LocationEditMessageHandler implements EditMessageHandler {
         }
     }
 
-    private void handlePlaceTasks(Set<UserTask> tasks) {
+    private void handlePlaceTasks(Set<UserTask> tasks, Location location) {
+        for (UserTask task : tasks) {
+            PlaceRegion region = new PlaceRegion("Магнит Саратов", task.getId(), googleApiKey, restTemplate);
+            region.updatePlaceRegion(new AddressLocation(location.getLatitude(), location.getLongitude()));
+
+            String tString2 = "asd";
+        }
+
         String tString = "123";
     }
 
