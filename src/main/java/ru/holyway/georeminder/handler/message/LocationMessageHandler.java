@@ -55,10 +55,14 @@ public class LocationMessageHandler implements MessageHandler {
         final String[] rqxp = realAddress.split(",");
         final String smallAddress = rqxp[0] + rqxp[1];
         userStateService.changeUserState(message.getFrom().getId(), UserState.ASK_MESSAGE);
-        final UserTask userTask = new UserTask();
+        final UserTask userTask = userStateService.getDraftUserTask(message.getFrom().getId());
         userTask.setTaskType(UserTask.TaskType.SIMPLE);
         userTask.setLocation(location);
-        userTask.setUserID(message.getFrom().getId());
+        if (message.getChat().isUserChat()) {
+            userTask.setUserID(message.getFrom().getId());
+        } else {
+            userTask.setUserID(message.getChat().getId());
+        }
         userTask.setChatID(message.getChatId());
         userTask.setTargetPlace(smallAddress);
         userStateService.changeDraftTask(message.getFrom().getId(), userTask);

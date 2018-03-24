@@ -10,11 +10,9 @@ import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-import ru.holyway.georeminder.entity.AddressLocation;
-import ru.holyway.georeminder.entity.AddressResult;
-import ru.holyway.georeminder.entity.PlaceRegion;
-import ru.holyway.georeminder.entity.UserTask;
+import ru.holyway.georeminder.entity.*;
 import ru.holyway.georeminder.service.PlaceTaskService;
+import ru.holyway.georeminder.service.UserPlacesService;
 import ru.holyway.georeminder.service.UserTaskService;
 import utils.MathUtils;
 
@@ -28,13 +26,16 @@ public class LocationEditMessageHandler implements EditMessageHandler {
 
     private final UserTaskService userTaskService;
     private final PlaceTaskService placeTaskService;
+    private final UserPlacesService userPlacesService;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(LocationEditMessageHandler.class);
 
     public LocationEditMessageHandler(UserTaskService userTaskService,
-                                      PlaceTaskService placeTaskService) {
+                                      PlaceTaskService placeTaskService,
+                                      UserPlacesService userPlacesService) {
         this.userTaskService = userTaskService;
         this.placeTaskService = placeTaskService;
+        this.userPlacesService = userPlacesService;
     }
 
     @Override
@@ -54,6 +55,7 @@ public class LocationEditMessageHandler implements EditMessageHandler {
             final Long userID = message.getChatId();
             handleSimpleTasks(userTaskService.getSimpleUserTasks(userID), message, location, sender);
             handlePlaceTasks(userTaskService.getPlaceUserTasks(userID), message, location, sender);
+            handleEventTask(userTaskService.getEventUserTasks(userID), message, location, sender);
         }
 
     }
@@ -99,6 +101,42 @@ public class LocationEditMessageHandler implements EditMessageHandler {
                     executeTask(task.getId(), task.getMessage(), placeMessage, message, sender);
                     task.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
                     userTaskService.updateTask(task);
+                }
+            }
+        }
+    }
+
+    private void handleEventTask(final Set<UserTask> tasks, Message message, Location location,
+                                 AbsSender sender) throws TelegramApiException {
+        userPlacesService.updateUserLocation(message.getChatId(),
+                new UserLocation(message.getFrom().getId(),
+                        message.getFrom().getFirstName(),
+                        message.getMessageId(),
+                        message.getLocation()
+                ));
+        for (final UserTask userTask : tasks) {
+            if (MathUtils.isNear(userTask.getLocation(), location)) {
+                final StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("✔️  ");
+                stringBuilder.append(message.getFrom().getFirstName())
+                        .append(" прибыл на эвент ")
+                        .append(userTask.getMessage())
+                        .append(" по адресу ")
+                        .append(userTask.getTargetPlace());
+                sender.execute(new SendMessage().setText(stringBuilder.toString()).setChatId(message.getChatId()));
+
+            }
+            for (final UserLocation userLocation : userPlacesService.getUserLocations(message.getChatId())) {
+                if (!message.getFrom().getId().equals(userLocation.getUserId()) && MathUtils.isNear(userLocation.getLocation(), location)) {
+                    final StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append("\uD83D\uDE4B\u200D♂️  ");
+                    stringBuilder.append(message.getFrom().getFirstName())
+                            .append(", вы очень близко к ")
+                            .append(userLocation.getName())
+                            .append("\nПосмотрите на карте.");
+                    sender.execute(new SendMessage().setText(stringBuilder.toString())
+                            .setChatId(message.getChatId())
+                            .setReplyToMessageId(userLocation.getLocationMessageID()));
                 }
             }
         }

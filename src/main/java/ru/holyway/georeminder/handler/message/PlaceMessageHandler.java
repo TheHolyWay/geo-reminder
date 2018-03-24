@@ -32,7 +32,7 @@ public class PlaceMessageHandler implements MessageHandler {
 
     @Override
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
-        final UserTask userTask = new UserTask();
+        final UserTask userTask = userStateService.getDraftUserTask(message.getFrom().getId());
         userTask.setTaskType(UserTask.TaskType.PLACE);
         if (message.getChat().isUserChat()) {
             userTask.setUserID(message.getFrom().getId());

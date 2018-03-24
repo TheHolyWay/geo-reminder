@@ -55,7 +55,7 @@ public class AddressMessageHandler implements MessageHandler {
         final AddressLocation addressLocation = addressResult.getGeometry().getLocation();
         final String[] rqxp = formattedAddress.split(",");
         final String smallAddress = rqxp[0] + rqxp[1];
-        final UserTask userTask = new UserTask();
+        final UserTask userTask = userStateService.getDraftUserTask(message.getFrom().getId());
         userTask.setTaskType(UserTask.TaskType.SIMPLE);
         userTask.setLocation(addressLocation);
         if (message.getChat().isUserChat()) {

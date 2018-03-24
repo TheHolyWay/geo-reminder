@@ -27,4 +27,6 @@ public interface UserTaskService {
     Set<UserTask> getSimpleUserTasks(final Number userID);
 
     Set<UserTask> getPlaceUserTasks(final Number userID);
+
+    Set<UserTask> getEventUserTasks(final Number userID);
 }

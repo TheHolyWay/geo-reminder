@@ -42,9 +42,25 @@ public class UserTask {
     @Enumerated(EnumType.STRING)
     private TaskType taskType;
 
+    @Enumerated(EnumType.STRING)
+    private EventType eventType;
+
+    public EventType getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
+    }
+
     public enum TaskType {
         SIMPLE,
         PLACE
+    }
+
+    public enum EventType {
+        SINGLE,
+        EVENT
     }
 
     public UserTask(String id, Number userID, String message, Location location, Long chatID) {
