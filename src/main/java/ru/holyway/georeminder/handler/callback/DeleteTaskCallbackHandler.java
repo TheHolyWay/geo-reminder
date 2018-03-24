@@ -1,7 +1,7 @@
 package ru.holyway.georeminder.handler.callback;
 
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.bots.AbsSender;
@@ -19,7 +19,7 @@ public class DeleteTaskCallbackHandler implements CallbackHandler {
     private final PlaceTaskService placeTaskService;
 
     public DeleteTaskCallbackHandler(UserTaskService userTaskService,
-                               PlaceTaskService placeTaskService) {
+                                     PlaceTaskService placeTaskService) {
         this.userTaskService = userTaskService;
         this.placeTaskService = placeTaskService;
     }
@@ -51,6 +51,9 @@ public class DeleteTaskCallbackHandler implements CallbackHandler {
 
         sender.execute(new DeleteMessage().setMessageId(callbackQuery.getMessage().getMessageId())
                 .setChatId(callbackQuery.getMessage().getChatId().toString()));
-        sender.execute(new SendMessage().setText("❌ Удалил таску.").setChatId(callbackQuery.getMessage().getChatId()));
+        sender.execute(new AnswerCallbackQuery()
+                .setText("❌ Удалено")
+                .setShowAlert(true)
+                .setCallbackQueryId(callbackQuery.getId()));
     }
 }

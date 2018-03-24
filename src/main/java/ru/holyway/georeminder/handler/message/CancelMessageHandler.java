@@ -21,7 +21,7 @@ public class CancelMessageHandler implements MessageHandler {
     public boolean isNeedToHandle(Message message) {
         if (!UserState.NO_STATE.equals(userStateService.getCurrentUserState(message.getFrom().getId()))) {
             final String mes = message.getText();
-            return StringUtils.isNotEmpty(mes) && "/cancel".equalsIgnoreCase(mes);
+            return StringUtils.isNotEmpty(mes) && (mes.contains("/cancel") || "отмена".equalsIgnoreCase(mes.trim()));
         }
         return false;
     }
@@ -29,6 +29,6 @@ public class CancelMessageHandler implements MessageHandler {
     @Override
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
         userStateService.changeUserState(message.getFrom().getId(), UserState.NO_STATE);
-        sender.execute(new SendMessage().setText("Ок").setChatId(message.getChatId()));
+        sender.execute(new SendMessage().setText("Хорошо, забыли").setChatId(message.getChatId()));
     }
 }

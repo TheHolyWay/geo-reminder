@@ -44,7 +44,7 @@ public class PlaceMessageHandler implements MessageHandler {
         userStateService.changeDraftTask(message.getFrom().getId(), userTask);
         placeTaskService.addRegionForTask(userTask.getId(), message.getText());
 
-        sender.execute(new SendMessage().setText("\uD83D\uDCDD Опишите текст напоминания").setChatId(message.getChatId()));
+        sender.execute(new SendMessage().setText("\uD83D\uDCAC Опишите текст напоминания").setChatId(message.getChatId()));
         userStateService.changeUserState(message.getFrom().getId(), UserState.ASK_MESSAGE);
     }
 }
