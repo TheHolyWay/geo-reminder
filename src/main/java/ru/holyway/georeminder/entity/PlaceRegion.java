@@ -54,16 +54,15 @@ public class PlaceRegion {
     }
 
     private List<AddressResult> findPlacesInRegion(AddressLocation location) {
-        final StringBuilder requestBuilder = new StringBuilder(SEARCH_URL_BASE);
-        requestBuilder.append("location=").append(location.getLocationAsString());
-        requestBuilder.append("&radius=").append(SEARCH_RADIUS);
-        requestBuilder.append("&query=").append(URLEncoder.encode(this.placeAlias));
-        requestBuilder.append("&key=").append(this.googleApiKey);
-        requestBuilder.append("&language=ru");
+        String request = SEARCH_URL_BASE + "location=" + location.getLocationAsString() +
+                "&radius=" + SEARCH_RADIUS +
+                "&query=" + URLEncoder.encode(this.placeAlias) +
+                "&key=" + this.googleApiKey +
+                "&language=ru";
 
-        ResponseEntity<AddressResponse> adressResponse =
-                restTemplate.getForEntity(URI.create(requestBuilder.toString()), AddressResponse.class);
-        AddressResponse response = adressResponse.getBody();
+        ResponseEntity<AddressResponse> addressResponse =
+                restTemplate.getForEntity(URI.create(request), AddressResponse.class);
+        AddressResponse response = addressResponse.getBody();
         return response.getAddressResults();
     }
 }

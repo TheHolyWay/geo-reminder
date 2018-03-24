@@ -2,9 +2,7 @@ package ru.holyway.georeminder.handler.edit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Location;
 import org.telegram.telegrambots.api.objects.Message;
@@ -15,6 +13,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import ru.holyway.georeminder.entity.AddressLocation;
 import ru.holyway.georeminder.entity.PlaceRegion;
 import ru.holyway.georeminder.entity.UserTask;
+import ru.holyway.georeminder.service.PlaceTaskService;
 import ru.holyway.georeminder.service.UserTaskService;
 
 import java.util.ArrayList;
@@ -25,18 +24,14 @@ import java.util.Set;
 public class LocationEditMessageHandler implements EditMessageHandler {
 
     private final UserTaskService userTaskService;
+    private final PlaceTaskService placeTaskService;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(LocationEditMessageHandler.class);
 
-    private final RestTemplate restTemplate;
-    private final String googleApiKey;
-
     public LocationEditMessageHandler(UserTaskService userTaskService,
-                                      @Value("${credential.google.apikey}") final String googleApiKey,
-                                      RestTemplate restTemplate) {
+                                      PlaceTaskService placeTaskService) {
         this.userTaskService = userTaskService;
-        this.googleApiKey = googleApiKey;
-        this.restTemplate = restTemplate;
+        this.placeTaskService = placeTaskService;
     }
 
     @Override
@@ -68,9 +63,17 @@ public class LocationEditMessageHandler implements EditMessageHandler {
     private void handlePlaceTasks(Set<UserTask> tasks, Message message, Location location,
                                   AbsSender sender) throws TelegramApiException {
         for (UserTask task : tasks) {
-            PlaceRegion region = new PlaceRegion(task.getTargetPlace(), task.getId(), googleApiKey, restTemplate);
-            region.updatePlaceRegion(new AddressLocation(location.getLatitude(), location.getLongitude()));
-            String tString2 = "asd";
+            PlaceRegion regionForTask = placeTaskService.findPlaceByTask(task.getId());
+
+            // Update region if it needed
+            if (regionForTask == null) {
+                placeTaskService.addRegionForTask(task.getId(), task.getTargetPlace(),
+                        new AddressLocation(location.getLatitude(), location.getLongitude()));
+            } else {
+                regionForTask.updatePlaceRegion(new AddressLocation(location.getLatitude(), location.getLongitude()));
+            }
+
+            String str = "asd";
         }
     }
 

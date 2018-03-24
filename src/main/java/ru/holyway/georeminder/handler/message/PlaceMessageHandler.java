@@ -8,15 +8,19 @@ import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import ru.holyway.georeminder.entity.UserTask;
+import ru.holyway.georeminder.service.PlaceTaskService;
 import ru.holyway.georeminder.service.UserState;
 import ru.holyway.georeminder.service.UserStateService;
 
 @Component
 public class PlaceMessageHandler implements MessageHandler {
     private final UserStateService userStateService;
+    private final PlaceTaskService placeTaskService;
 
-    public PlaceMessageHandler(UserStateService userStateService) {
+    public PlaceMessageHandler(UserStateService userStateService,
+                               PlaceTaskService placeTaskService) {
         this.userStateService = userStateService;
+        this.placeTaskService = placeTaskService;
     }
 
     @Override
@@ -34,6 +38,7 @@ public class PlaceMessageHandler implements MessageHandler {
         userTask.setChatID(message.getChatId());
         userTask.setTargetPlace(message.getText());
         userStateService.changeDraftTask(message.getFrom().getId(), userTask);
+        placeTaskService.addRegionForTask(userTask.getId(), message.getText());
 
         sender.execute(new SendMessage().setText("\uD83D\uDCDD Опишите текст напоминания").setChatId(message.getChatId()));
         userStateService.changeUserState(message.getFrom().getId(), UserState.ASK_MESSAGE);
