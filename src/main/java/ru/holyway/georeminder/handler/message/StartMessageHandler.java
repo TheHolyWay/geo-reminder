@@ -27,7 +27,7 @@ public class StartMessageHandler implements MessageHandler {
     public boolean isNeedToHandle(Message message) {
         if (UserState.NO_STATE.equals(userStateService.getCurrentUserState(message.getFrom().getId()))) {
             final String mes = message.getText();
-            return StringUtils.isNotEmpty(mes) && "/new".equalsIgnoreCase(mes);
+            return StringUtils.isNotEmpty(mes) &&("/new".equalsIgnoreCase(mes) || StringUtils.containsIgnoreCase(mes, "нов"));
         }
         return false;
     }

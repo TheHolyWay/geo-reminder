@@ -30,9 +30,18 @@ public class CancelDelayCallbackHandler implements CallbackHandler {
     @Override
     public void execute(CallbackQuery callbackQuery, AbsSender sender) throws TelegramApiException {
         final String callbackData = callbackQuery.getData();
+        if (callbackQuery.getMessage().getChat().isUserChat()) {
+            final Integer userID = callbackQuery.getFrom().getId();
+            executeCancelDelay(callbackQuery, sender, callbackData, userID);
+        } else {
+            final Long userID = callbackQuery.getMessage().getChatId();
+            executeCancelDelay(callbackQuery, sender, callbackData, userID);
+        }
+    }
+
+    private void executeCancelDelay(CallbackQuery callbackQuery, AbsSender sender, String callbackData, Number userID) throws TelegramApiException {
         if (callbackData.startsWith("delay:")) {
             final String id = callbackData.replace("delay:", "");
-            final Number userID = callbackQuery.getMessage().getChat().isUserChat() ? callbackQuery.getMessage().getFrom().getId() : callbackQuery.getMessage().getChatId();
             Set<UserTask> userTaskList = userTaskService.getUserTasks(userID);
             for (UserTask userTask : userTaskList) {
                 if (userTask.getId().equals(id)) {
@@ -46,7 +55,6 @@ public class CancelDelayCallbackHandler implements CallbackHandler {
         }
         if (callbackData.startsWith("cancel:")) {
             final String id = callbackData.replace("cancel:", "");
-            final Number userID = callbackQuery.getMessage().getChat().isUserChat() ? callbackQuery.getMessage().getFrom().getId() : callbackQuery.getMessage().getChatId();
             Set<UserTask> userTaskList = userTaskService.getUserTasks(userID);
             for (UserTask userTask : userTaskList) {
                 if (userTask.getId().equals(id)) {

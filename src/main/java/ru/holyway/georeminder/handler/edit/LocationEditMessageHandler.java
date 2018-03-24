@@ -65,7 +65,9 @@ public class LocationEditMessageHandler implements EditMessageHandler {
                 if (MathUtils.isNear(userTask.getLocation(), location)
                         && (userTask.getNotifyTime() == null || System.currentTimeMillis() > userTask.getNotifyTime())
                         && userTask.getChatID() != null && userTask.getChatID().equals(message.getChatId())) {
-                    executeTask(userTask, message, sender);
+                    executeTask(userTask.getId(), userTask.getMessage(), userTask.getTargetPlace(), message, sender);
+                    userTask.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
+                    userTaskService.updateTask(userTask);
                 }
             }
         }
@@ -85,30 +87,37 @@ public class LocationEditMessageHandler implements EditMessageHandler {
             }
             for (AddressResult addressResult : regionForTask.getPlacesInRegion()) {
                 final Location targetLocation = addressResult.getGeometry().getLocation();
+                LOGGER.info("Task ID {} Name {}", task.getId(), task.getTargetPlace());
                 if (MathUtils.isNear(targetLocation, location)
                         && (task.getNotifyTime() == null || System.currentTimeMillis() > task.getNotifyTime())
                         && task.getChatID() != null && task.getChatID().equals(message.getChatId())) {
+                    LOGGER.info("Task is near ID {} Name {}", task.getId(), task.getTargetPlace());
                     final String[] regxp = addressResult.getFormattedAddress().split(",");
                     final String smallAddress = regxp[0] + regxp[1];
                     final String placeMessage = addressResult.getName() + " на " + smallAddress;
 
-                    task.setTargetPlace(placeMessage);
-                    executeTask(task, message, sender);
+                    executeTask(task.getId(), task.getMessage(), placeMessage, message, sender);
+                    task.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
+                    userTaskService.updateTask(task);
                 }
             }
         }
     }
 
-    private void executeTask(final UserTask userTask, final Message message, final AbsSender sender) throws TelegramApiException {
+    private void executeTask(final String id,
+                             final String userMessage,
+                             final String targetPlace,
+                             final Message message,
+                             final AbsSender sender) throws TelegramApiException {
         List<List<InlineKeyboardButton>> buttonList = new ArrayList<>();
         List<InlineKeyboardButton> buttons = new ArrayList<>();
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton delayButton = new InlineKeyboardButton("Delay");
         delayButton.setText("\uD83D\uDD53  Отложить");
-        delayButton.setCallbackData("delay:" + userTask.getId());
+        delayButton.setCallbackData("delay:" + id);
         buttons.add(delayButton);
         InlineKeyboardButton cancelButton = new InlineKeyboardButton("Cancel");
-        cancelButton.setCallbackData("cancel:" + userTask.getId());
+        cancelButton.setCallbackData("cancel:" + id);
         cancelButton.setText("✔  Завершить");
         buttons.add(cancelButton);
         buttonList.add(buttons);
@@ -119,14 +128,12 @@ public class LocationEditMessageHandler implements EditMessageHandler {
             notifyMessage.append('@').append(userName).append(", ");
         }
         notifyMessage.append("Не забудьте ")
-                .append(userTask.getMessage())
+                .append(userMessage)
                 .append(" пока вы рядом c ")
-                .append(userTask.getTargetPlace());
+                .append(targetPlace);
         inlineKeyboardMarkup.setKeyboard(buttonList);
         sender.execute(new SendMessage().setText(notifyMessage.toString())
                 .setReplyMarkup(inlineKeyboardMarkup)
                 .setChatId(message.getChatId()));
-        userTask.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
-        userTaskService.updateTask(userTask);
     }
 }

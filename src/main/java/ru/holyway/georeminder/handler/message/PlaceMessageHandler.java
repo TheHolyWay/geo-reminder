@@ -34,7 +34,11 @@ public class PlaceMessageHandler implements MessageHandler {
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
         final UserTask userTask = new UserTask();
         userTask.setTaskType(UserTask.TaskType.PLACE);
-        userTask.setUserID(message.getFrom().getId());
+        if (message.getChat().isUserChat()) {
+            userTask.setUserID(message.getFrom().getId());
+        } else {
+            userTask.setUserID(message.getChat().getId());
+        }
         userTask.setChatID(message.getChatId());
         userTask.setTargetPlace(message.getText());
         userStateService.changeDraftTask(message.getFrom().getId(), userTask);
