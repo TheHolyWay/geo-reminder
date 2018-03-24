@@ -2,6 +2,7 @@ package ru.holyway.georeminder.entity;
 
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 public class AddressResponse {
@@ -25,5 +26,11 @@ public class AddressResponse {
         return null;
     }
 
+    public List<AddressResult> getAddressResults() {
+        if (!CollectionUtils.isEmpty(results)) {
+            return results;
+        }
 
+        return Collections.emptyList();
+    }
 }
