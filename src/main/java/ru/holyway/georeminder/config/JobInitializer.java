@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class JobInitializer {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(JobInitializer.class);
-    private static final long DELAY_TO_UPDATE = TimeUnit.MINUTES.toMillis(28);
+    private static final long DELAY_TO_UPDATE = TimeUnit.MINUTES.toMillis(15);
 
     private final TaskScheduler scheduler;
     private final String selfUrl;
