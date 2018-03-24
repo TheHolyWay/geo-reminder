@@ -16,6 +16,7 @@ import ru.holyway.georeminder.entity.PlaceRegion;
 import ru.holyway.georeminder.entity.UserTask;
 import ru.holyway.georeminder.service.PlaceTaskService;
 import ru.holyway.georeminder.service.UserTaskService;
+import utils.MathUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +62,7 @@ public class LocationEditMessageHandler implements EditMessageHandler {
                                    AbsSender sender) throws TelegramApiException {
         if (tasks != null) {
             for (UserTask userTask : tasks) {
-                if (isNear(userTask.getLocation(), location)
+                if (MathUtils.isNear(userTask.getLocation(), location)
                         && (userTask.getNotifyTime() == null || System.currentTimeMillis() > userTask.getNotifyTime())
                         && userTask.getChatID() != null && userTask.getChatID().equals(message.getChatId())) {
                     executeTask(userTask, message, sender);
@@ -84,7 +85,7 @@ public class LocationEditMessageHandler implements EditMessageHandler {
             }
             for (AddressResult addressResult : regionForTask.getPlacesInRegion()) {
                 final Location targetLocation = addressResult.getGeometry().getLocation();
-                if (isNear(targetLocation, location)
+                if (MathUtils.isNear(targetLocation, location)
                         && (task.getNotifyTime() == null || System.currentTimeMillis() > task.getNotifyTime())
                         && task.getChatID() != null && task.getChatID().equals(message.getChatId())) {
                     final String[] regxp = addressResult.getFormattedAddress().split(",");
@@ -127,20 +128,5 @@ public class LocationEditMessageHandler implements EditMessageHandler {
                 .setChatId(message.getChatId()));
         userTask.setNotifyTime(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
         userTaskService.updateTask(userTask);
-    }
-
-    protected boolean isNear(final Location target, final Location current) {
-        double distance = sphericalDistance(target.getLongitude(), target.getLatitude(), current.getLongitude(), current.getLatitude());
-        LOGGER.info("Distance between user and target is {} m", distance);
-        return distance < 300;
-    }
-
-    private double sphericalDistance(double lon1, double lat1, double lon2, double lat2) {
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
-                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return c * 6371000;
     }
 }

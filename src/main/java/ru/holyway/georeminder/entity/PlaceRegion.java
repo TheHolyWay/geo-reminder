@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import utils.MathUtils;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -17,6 +18,8 @@ public class PlaceRegion {
     private static final Logger LOGGER = LoggerFactory.getLogger(PlaceRegion.class);
 
     private static int SEARCH_RADIUS = 500;
+    private static int SEARCH_EPSILON = 100;
+    private static int CHECK_RESULTS_RADIUS = 200;
     private static String SEARCH_URL_BASE = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
 
     private final RestTemplate restTemplate;
@@ -28,6 +31,7 @@ public class PlaceRegion {
     private String placeAlias;
     private String taskId;
     private AddressLocation regionCenterLocation;
+    private AddressLocation previousLocation;
     private List<AddressResult> placesInRegion;
 
     public PlaceRegion(String placeAlias, String taskId,
@@ -39,6 +43,7 @@ public class PlaceRegion {
         this.restTemplate = restTemplate;
 
         this.regionCenterLocation = null;
+        this.previousLocation = null;
         this.placesInRegion = Collections.emptyList();
 
         LOGGER.info("Create place with alias: {} for task: {}.", this.placeAlias, this.taskId);
@@ -48,9 +53,52 @@ public class PlaceRegion {
         if (regionCenterLocation == null) {
             this.placesInRegion = findPlacesInRegion(changedLocation);
             this.regionCenterLocation = changedLocation;
-        } else {
-            // TODO: Recalculate places if it needed
+        } else if (needRecalculate(changedLocation)) {
+            float newLat = (changedLocation.getLatitude() - this.regionCenterLocation.getLatitude()) +
+                    changedLocation.getLatitude();
+            float newLng = (changedLocation.getLongitude() - this.regionCenterLocation.getLongitude()) +
+                    changedLocation.getLongitude();
+            AddressLocation newCenter = new AddressLocation(newLat, newLng);
+
+            LOGGER.info("OldCenter: {}", this.regionCenterLocation.toString());
+            LOGGER.info("NewCenter: {}", newCenter.toString());
+
+            this.placesInRegion = findPlacesInRegion(newCenter);
+            this.regionCenterLocation = newCenter;
         }
+
+        this.previousLocation = changedLocation;
+    }
+
+    private boolean needRecalculate(AddressLocation changedLocation) {
+        LOGGER.info("Start 'needRecalculate' method for task: {}.", this.taskId);
+        double centerToChangedDistance = MathUtils.sphericalDistance(regionCenterLocation.getLongitude(),
+                regionCenterLocation.getLatitude(), changedLocation.getLongitude(), changedLocation.getLatitude());
+
+        if (centerToChangedDistance - SEARCH_RADIUS > 10) {
+            return true;
+        }
+
+        if (centerToChangedDistance > (double) (SEARCH_RADIUS - SEARCH_EPSILON)) {
+            if (this.previousLocation != null) {
+                double centerToPrevDistance = MathUtils.sphericalDistance(regionCenterLocation.getLongitude(),
+                        regionCenterLocation.getLatitude(), this.previousLocation.getLongitude(),
+                        this.previousLocation.getLatitude());
+                if (SEARCH_RADIUS - SEARCH_EPSILON <= centerToPrevDistance
+                        && centerToPrevDistance <= SEARCH_RADIUS) {
+                    if (MathUtils.sphericalDistance(this.previousLocation.getLongitude(), this.previousLocation.getLatitude(),
+                            changedLocation.getLongitude(), changedLocation.getLatitude()) > SEARCH_RADIUS / 2) {
+                        return true;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private List<AddressResult> findPlacesInRegion(AddressLocation location) {

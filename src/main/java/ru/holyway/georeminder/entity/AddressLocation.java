@@ -41,4 +41,12 @@ public class AddressLocation extends Location {
     public String getLocationAsString() {
         return getLatitude().toString() + "," + getLongitude().toString();
     }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+                "longitude=" + getLongitude() +
+                ", latitude=" + getLatitude() +
+                '}';
+    }
 }
