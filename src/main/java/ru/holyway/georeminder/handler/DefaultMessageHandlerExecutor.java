@@ -1,5 +1,7 @@
 package ru.holyway.georeminder.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.AbsSender;
@@ -12,6 +14,8 @@ import java.util.List;
 
 @Component
 public class DefaultMessageHandlerExecutor implements MessageHandlerExecutor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMessageHandlerExecutor.class);
 
     private final List<CallbackHandler> callbackHandlers;
 
@@ -53,7 +57,7 @@ public class DefaultMessageHandlerExecutor implements MessageHandlerExecutor {
                 }
             }
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            LOGGER.error("Can't handle update", e);
         }
 
     }

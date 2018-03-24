@@ -48,7 +48,7 @@ public class LocationMessageHandler implements MessageHandler {
         final Location location = message.getLocation();
         sender.execute(new SendMessage().setText("\uD83D\uDCDD Опишите текст напоминания").setChatId(message.getChatId()));
 
-        final String locRequest = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + location.getLatitude() + "," + location.getLongitude() + "&key=" + googleApiKey + " &language=ru";
+        final String locRequest = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + location.getLatitude() + "," + location.getLongitude() + "&key=" + googleApiKey + "&language=ru";
         ResponseEntity<AddressResponse> addressResponse = restTemplate.getForEntity(URI.create(locRequest), AddressResponse.class);
         AddressResponse response = addressResponse.getBody();
         final String realAddress = response.getAddressResult().getFormattedAddress();
