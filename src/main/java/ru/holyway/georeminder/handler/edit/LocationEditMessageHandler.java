@@ -38,7 +38,7 @@ public class LocationEditMessageHandler implements EditMessageHandler {
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
         final Location location = message.getLocation();
         handleSimpleTasks(userTaskService.getSimpleUserTasks(message.getFrom().getId()), message, location, sender);
-        handlePlaceTasks(userTaskService.getPlaceUserTasks(message.getFrom().getId()));
+        handlePlaceTasks(userTaskService.getPlaceUserTasks(message.getFrom().getId()), message, location, sender);
     }
 
     private void handleSimpleTasks(Set<UserTask> tasks, Message message, Location location,
@@ -48,29 +48,37 @@ public class LocationEditMessageHandler implements EditMessageHandler {
                 if (isNear(userTask.getLocation(), location)
                         && (userTask.getNotifyTime() == null || System.currentTimeMillis() > userTask.getNotifyTime())
                         && userTask.getChatID() != null && userTask.getChatID().equals(message.getChatId())) {
-                    List<List<InlineKeyboardButton>> buttonList = new ArrayList<>();
-                    List<InlineKeyboardButton> buttons = new ArrayList<>();
-                    InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-                    InlineKeyboardButton delayButton = new InlineKeyboardButton("Delay");
-                    delayButton.setText("\uD83D\uDD53  Отложить");
-                    delayButton.setCallbackData("delay:" + userTask.getId());
-                    buttons.add(delayButton);
-                    InlineKeyboardButton cancelButton = new InlineKeyboardButton("Cancel");
-                    cancelButton.setCallbackData("cancel:" + userTask.getId());
-                    cancelButton.setText("✔  Завершить");
-                    buttons.add(cancelButton);
-                    buttonList.add(buttons);
-                    inlineKeyboardMarkup.setKeyboard(buttonList);
-                    sender.execute(new SendMessage().setText("Не забудьте " + userTask.getMessage() + " пока вы рядом")
-                            .setReplyMarkup(inlineKeyboardMarkup)
-                            .setChatId(message.getChatId()));
+                    executeTask(userTask, message, sender);
                 }
             }
         }
     }
 
-    private void handlePlaceTasks(Set<UserTask> tasks) {
+    private void handlePlaceTasks(Set<UserTask> tasks, Message message, Location location,
+                                  AbsSender sender) throws TelegramApiException {
         String tString = "123";
+        if (false) {
+            executeTask(new UserTask(), message, sender);
+        }
+    }
+
+    private void executeTask(final UserTask userTask, final Message message, final AbsSender sender) throws TelegramApiException {
+        List<List<InlineKeyboardButton>> buttonList = new ArrayList<>();
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton delayButton = new InlineKeyboardButton("Delay");
+        delayButton.setText("\uD83D\uDD53  Отложить");
+        delayButton.setCallbackData("delay:" + userTask.getId());
+        buttons.add(delayButton);
+        InlineKeyboardButton cancelButton = new InlineKeyboardButton("Cancel");
+        cancelButton.setCallbackData("cancel:" + userTask.getId());
+        cancelButton.setText("✔  Завершить");
+        buttons.add(cancelButton);
+        buttonList.add(buttons);
+        inlineKeyboardMarkup.setKeyboard(buttonList);
+        sender.execute(new SendMessage().setText("Не забудьте " + userTask.getMessage() + " пока вы рядом")
+                .setReplyMarkup(inlineKeyboardMarkup)
+                .setChatId(message.getChatId()));
     }
 
     protected boolean isNear(final Location target, final Location current) {

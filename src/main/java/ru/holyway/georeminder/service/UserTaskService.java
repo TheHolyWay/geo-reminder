@@ -10,12 +10,9 @@ import java.util.Set;
  */
 public interface UserTaskService {
     /**
-     * @param userID
-     * @param targetLocation
-     * @param text
+     *
      */
-    void addTask(final Integer userID, final Long chatID, final Location targetLocation, final String text,
-                 UserTask.TaskType type);
+    void addTask(final UserTask userTask);
 
     void updateTask(UserTask userTask);
 

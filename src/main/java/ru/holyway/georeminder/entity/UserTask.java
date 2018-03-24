@@ -25,6 +25,20 @@ public class UserTask {
 
     private Long chatID;
 
+    private String targetPlace;
+
+    public void setChatID(Long chatID) {
+        this.chatID = chatID;
+    }
+
+    public String getTargetPlace() {
+        return targetPlace;
+    }
+
+    public void setTargetPlace(String targetPlace) {
+        this.targetPlace = targetPlace;
+    }
+
     @Enumerated(EnumType.STRING)
     private TaskType taskType;
 
@@ -116,7 +130,6 @@ public class UserTask {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id);
     }
 }

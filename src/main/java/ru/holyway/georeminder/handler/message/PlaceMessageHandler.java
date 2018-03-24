@@ -1,6 +1,8 @@
 package ru.holyway.georeminder.handler.message;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.bots.AbsSender;
@@ -29,6 +31,8 @@ public class PlaceMessageHandler implements MessageHandler {
         final UserTask userTask = new UserTask();
         userTask.setTaskType(UserTask.TaskType.PLACE);
         userTask.setUserID(message.getFrom().getId());
+        userTask.setChatID(message.getChatId());
+        userTask.setTargetPlace(message.getText());
         userStateService.changeDraftTask(message.getFrom().getId(), userTask);
 
         sender.execute(new SendMessage().setText("\uD83D\uDCDD Опишите текст напоминания").setChatId(message.getChatId()));

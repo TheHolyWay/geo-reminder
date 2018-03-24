@@ -34,10 +34,8 @@ public class DefaultUserTaskService implements UserTaskService {
     }
 
     @Override
-    public void addTask(Integer userID, Long chatID, Location targetLocation, String text, UserTask.TaskType type) {
-        final Set<UserTask> tasks = userTasks.computeIfAbsent(userID, k -> new HashSet<>());
-        final UserTask userTask = new UserTask(userID, text, targetLocation, chatID);
-        userTask.setTaskType(type);
+    public void addTask(final UserTask userTask) {
+        final Set<UserTask> tasks = userTasks.computeIfAbsent(userTask.getUserID(), k -> new HashSet<>());
         tasks.add(userTask);
         userTaskRepository.save(userTask);
     }
@@ -77,7 +75,7 @@ public class DefaultUserTaskService implements UserTaskService {
         return getUserTasksByType(userID, UserTask.TaskType.PLACE);
     }
 
-    private Set<UserTask> getUserTasksByType (Integer userID, UserTask.TaskType type) {
+    private Set<UserTask> getUserTasksByType(Integer userID, UserTask.TaskType type) {
         Set<UserTask> result = new HashSet<>();
 
         for (UserTask task : userTasks.get(userID)) {

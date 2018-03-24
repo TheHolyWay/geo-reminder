@@ -46,18 +46,21 @@ public class AddressMessageHandler implements MessageHandler {
         final String locRequest = "https://maps.googleapis.com/maps/api/geocode/json?address="
                 + URLEncoder.encode(message.getText()) + "&key=" + googleApiKey + "&language=ru";
 
-        ResponseEntity<AddressResponse> adressResponse =
+        ResponseEntity<AddressResponse> addressResponse =
                 restTemplate.getForEntity(URI.create(locRequest), AddressResponse.class);
 
-        AddressResponse response = adressResponse.getBody();
+        AddressResponse response = addressResponse.getBody();
         AddressResult addressResult = response.getAddressResult();
         final String formattedAddress = addressResult.getFormattedAddress();
         final AddressLocation addressLocation = addressResult.getGeometry().getLocation();
-
+        final String[] rqxp = formattedAddress.split(",");
+        final String smallAddress = rqxp[0] + rqxp[1];
         final UserTask userTask = new UserTask();
         userTask.setTaskType(UserTask.TaskType.SIMPLE);
         userTask.setLocation(addressLocation);
         userTask.setUserID(message.getFrom().getId());
+        userTask.setChatID(message.getChatId());
+        userTask.setTargetPlace(smallAddress);
         userStateService.changeDraftTask(message.getFrom().getId(), userTask);
 
         sender.execute(new SendMessage().setText("❓ Вы имели в виду следующий адрес:\n" + formattedAddress).setChatId(message.getChatId()));

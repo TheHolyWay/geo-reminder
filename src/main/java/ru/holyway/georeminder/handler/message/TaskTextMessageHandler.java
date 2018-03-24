@@ -34,12 +34,20 @@ public class TaskTextMessageHandler implements MessageHandler {
 
     @Override
     public void execute(Message message, AbsSender sender) throws TelegramApiException {
-        sender.execute(new SendMessage().setText("✅ Задача создана").setChatId(message.getChatId()));
-        final String mes = message.getText();
         UserTask userTask = userStateService.getDraftUserTask(message.getFrom().getId());
+        final String mes = message.getText();
         userTask.setMessage(mes);
-        userTaskService.addTask(message.getFrom().getId(), message.getChatId(), userTask.getLocation(),
-                userTask.getMessage(), userTask.getTaskType());
+        final StringBuilder taskTextMessage = new StringBuilder("✅  Задача создана\n");
+        taskTextMessage.append("\uD83D\uDEE3  Место: ");
+        if (userTask.getTaskType().equals(UserTask.TaskType.SIMPLE)) {
+            taskTextMessage.append(userTask.getTargetPlace());
+        } else {
+            taskTextMessage.append(userTask.getTargetPlace()).append(" по близости");
+        }
+        taskTextMessage.append("\n\uD83D\uDCDD  Текст напоминания: ").append(userTask.getMessage());
+
+        sender.execute(new SendMessage().setText(taskTextMessage.toString()).setChatId(message.getChatId()));
+        userTaskService.addTask(userTask);
         userStateService.changeUserState(message.getFrom().getId(), UserState.NO_STATE);
     }
 }
