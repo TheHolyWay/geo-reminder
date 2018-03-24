@@ -4,6 +4,9 @@ import ru.holyway.georeminder.datetime.unit.DayOfWeek;
 import ru.holyway.georeminder.datetime.unit.DayOffsets;
 import ru.holyway.georeminder.datetime.unit.TimeOfDay;
 
+import java.time.LocalTime;
+import java.util.Date;
+
 public class DateMessageStructure {
 
     //day element, position
@@ -15,6 +18,9 @@ public class DateMessageStructure {
 
     private DayOfWeek dayOfWeek;
     private int dayOfWeekPos = -1;
+
+    private Date explicitDate;
+    private LocalTime explicitTime;
 
     public TimeOfDay getTimeOfDay() {
         return timeOfDay;
@@ -62,5 +68,21 @@ public class DateMessageStructure {
 
     public void setDayOfWeekPos(int dayOfWeekPos) {
         this.dayOfWeekPos = dayOfWeekPos;
+    }
+
+    public Date getExplicitDate() {
+        return explicitDate;
+    }
+
+    public void setExplicitDate(Date explicitDate) {
+        this.explicitDate = explicitDate;
+    }
+
+    public LocalTime getExplicitTime() {
+        return explicitTime;
+    }
+
+    public void setExplicitTime(LocalTime explicitTime) {
+        this.explicitTime = explicitTime;
     }
 }
