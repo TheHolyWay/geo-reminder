@@ -33,7 +33,14 @@ public class DeleteTaskCallbackHandler implements CallbackHandler {
     @Override
     public void execute(CallbackQuery callbackQuery, AbsSender sender) throws TelegramApiException {
         final String taskId = callbackQuery.getData().replace("delete_task:", "");
-        final Set<UserTask> userTasks = userTaskService.getUserTasks(callbackQuery.getFrom().getId());
+
+        final Set<UserTask> userTasks;
+        if(callbackQuery.getMessage().getChat().isUserChat()){
+            userTasks = userTaskService.getUserTasks(callbackQuery.getFrom().getId());
+        }
+        else {
+            userTasks = userTaskService.getUserTasks(callbackQuery.getMessage().getChat().getId());
+        }
         UserTask requestedTask = null;
 
         for (UserTask task : userTasks) {

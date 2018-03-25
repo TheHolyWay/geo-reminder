@@ -96,7 +96,7 @@ public class DefaultDemoService implements DemoService {
 
             try {
                 locationEditMessageHandler.execute(message, sender);
-                sender.execute(sendLocation);
+                //sender.execute(sendLocation);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
