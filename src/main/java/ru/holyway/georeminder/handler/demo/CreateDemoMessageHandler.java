@@ -16,7 +16,7 @@ import ru.holyway.georeminder.service.demo.DemoTask;
 @Profile("dev")
 public class CreateDemoMessageHandler implements MessageHandler {
 
-    private static final String CREATE = "/new_demo";
+    private static final String CREATE = "nd";
 
     private DemoService demoService;
 

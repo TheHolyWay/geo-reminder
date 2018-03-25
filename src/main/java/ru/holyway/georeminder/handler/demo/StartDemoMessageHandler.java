@@ -13,7 +13,7 @@ import ru.holyway.georeminder.service.demo.DemoState;
 @Profile("dev")
 public class StartDemoMessageHandler implements MessageHandler {
 
-    private static final String START = "/start_demo";
+    private static final String START = "sd";
 
     private DemoService demoService;
 
