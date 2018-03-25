@@ -18,9 +18,8 @@ public class PlaceRegion {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlaceRegion.class);
 
-    private static int SEARCH_RADIUS = 500;
+    private static int SEARCH_RADIUS = 2000;
     private static int SEARCH_EPSILON = 100;
-    private static int CHECK_RESULTS_RADIUS = 200;
     private static String SEARCH_URL_BASE = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
 
     private final RestTemplate restTemplate;
@@ -55,11 +54,13 @@ public class PlaceRegion {
             this.placesInRegion = findPlacesInRegion(changedLocation);
             this.regionCenterLocation = changedLocation;
         } else if (needRecalculate(changedLocation)) {
-            float newLat = (changedLocation.getLatitude() - this.regionCenterLocation.getLatitude()) +
-                    changedLocation.getLatitude();
-            float newLng = (changedLocation.getLongitude() - this.regionCenterLocation.getLongitude()) +
-                    changedLocation.getLongitude();
-            AddressLocation newCenter = new AddressLocation(newLat, newLng);
+//            float newLat = (changedLocation.getLatitude() - this.regionCenterLocation.getLatitude()) +
+//                    changedLocation.getLatitude();
+//            float newLng = (changedLocation.getLongitude() - this.regionCenterLocation.getLongitude()) +
+//                    changedLocation.getLongitude();
+//            AddressLocation newCenter = new AddressLocation(newLat, newLng);
+            AddressLocation newCenter = changedLocation;
+
 
             LOGGER.info("OldCenter: {}", this.regionCenterLocation.toString());
             LOGGER.info("NewCenter: {}", newCenter.toString());
@@ -111,6 +112,9 @@ public class PlaceRegion {
 
         ResponseEntity<AddressResponse> addressResponse =
                 restTemplate.getForEntity(URI.create(request), AddressResponse.class);
+
+        LOGGER.info("GoTo GOOGLE with query '{}'", request);
+
         AddressResponse response = addressResponse.getBody();
         List<AddressResult> result = response.getAddressResults();
 
